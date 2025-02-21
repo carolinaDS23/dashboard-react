@@ -1,0 +1,13 @@
+.posts-container {
+  padding: 20px;
+}
+
+.post-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.post-table {
+  margin-top: 20px;
+}

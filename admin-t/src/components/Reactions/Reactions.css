@@ -1,0 +1,22 @@
+.reactions-container {
+  padding: 20px;
+}
+
+.reaction-list {
+  list-style: none;
+  padding: 0;
+}
+
+.reaction-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.reaction-list button {
+  margin-left: 10px;
+}
+
+  
