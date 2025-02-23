@@ -1,15 +1,13 @@
-
-
 import { useState } from "react";
-import { Form, Button } from "react-bootstrap";
-import axiosConfigs from '../../service/axiosConfigs';
-
-
-
+import { Form, Button, Alert } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import axiosConfigs from "../../service/axiosConfigs";
 import "./Login.css";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -17,23 +15,33 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(""); // Limpia el mensaje de error antes de hacer la solicitud
+
     try {
-      const response = await axiosConfigs.post('/login', credentials);
+      const response = await axiosConfigs.post("/login", credentials);
+      const { token, role } = response.data; // Suponiendo que la API devuelve { token, role }
 
-       // Guardar el rol en localStorage o en el estado global (Redux, Context)
-    //localStorage.setItem("role", response.data.role);
+      // Guardar en localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
 
-      console.log('Login successful:', response.data);
-      // Maneja la respuesta de la API aquí
+      console.log("Login exitoso:", response.data);
+      if (role === "admin") {
+        navigate("/admin"); // Redirige al panel de administrador tras iniciar sesión
+      } else {
+        navigate("/dashboard"); // Redirige al dashboard tras iniciar sesión si no es administrador
+      }
+
     } catch (error) {
-      console.error('Error logging in:', error);
-      // Maneja el error aquí
+      console.error("Error al iniciar sesión:", error);
+      setError("Credenciales incorrectas. Inténtalo de nuevo.");
     }
   };
 
   return (
     <div className="login-container">
       <h2>Iniciar Sesión</h2>
+      {error && <Alert variant="danger">{error}</Alert>}
       <Form onSubmit={handleLogin}>
         <Form.Group>
           <Form.Label>Email</Form.Label>
@@ -42,6 +50,7 @@ const Login = () => {
             name="email" 
             value={credentials.email} 
             onChange={handleChange} 
+            required
           />
         </Form.Group>
         <Form.Group>
@@ -51,59 +60,14 @@ const Login = () => {
             name="password" 
             value={credentials.password} 
             onChange={handleChange} 
+            required
           />
         </Form.Group>
-        <Button type="submit">Ingresar</Button>
+        <Button type="submit" className="mt-3">Ingresar</Button>
       </Form>
     </div>
   );
 };
 
 export default Login;
-
-
-
-
-
-
-// import { useState } from "react";
-// import { login } from "../../services/api";
-// import { useNavigate } from "react-router-dom";
-// import "./Login.css";
-
-// function Login() {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [error, setError] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleLogin = async (e) => {
-//     e.preventDefault();
-//     if (!email || !password) {
-//       setError("Ambos campos son obligatorios");
-//       return;
-//     }
-
-//     try {
-//       await login({ email, password });
-//       navigate("/dashboard");
-//     } catch (error) {
-//       setError("Error al iniciar sesión. Por favor, verifica tus credenciales");
-//     }
-//   };
-
-//   return (
-//     <div className="login-container">
-//       <h2>Administrador TALKING</h2>
-//       <form onSubmit={handleLogin}>
-//         {error && <p className="error">{error}</p>}
-//         <input type="email" placeholder="Correo" value={email} onChange={(e) => setEmail(e.target.value)} />
-//         <input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />
-//         <button type="submit">Iniciar sesión</button>
-//       </form>
-//     </div>
-//   );
-// }
-
-// export default Login;
 
