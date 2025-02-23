@@ -6,6 +6,10 @@ const Posts = () => {
   const [posts, setPosts] = useState([
     { id: 1, title: "Primer Post", content: "Este es el primer post." },
     { id: 2, title: "Segundo Post", content: "Este es el segundo post." },
+    { id: 3, title: "Segundo Post", content: "Este es el segundo post." },
+    { id: 4, title: "Segundo Post", content: "Este es el segundo post." },
+    { id: 5, title: "Segundo Post", content: "Este es el segundo post." },
+
   ]);
 
   const [show, setShow] = useState(false);

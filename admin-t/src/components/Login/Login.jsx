@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { login } from "../../service/login";
 import axiosConfigs from "../../service/axiosConfigs";
 import "./Login.css";
 
@@ -18,7 +19,9 @@ const Login = () => {
     setError(""); // Limpia el mensaje de error antes de hacer la solicitud
 
     try {
-      const response = await axiosConfigs.post("/login", credentials);
+      // const response = await axiosConfigs.post("/login", credentials);
+      console.log("credenciales", credentials) // email, password
+      const response = await login(credentials)
       const { token, role } = response.data; // Suponiendo que la API devuelve { token, role }
 
       // Guardar en localStorage
