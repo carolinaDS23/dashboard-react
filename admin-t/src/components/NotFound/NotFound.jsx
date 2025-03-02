@@ -1,13 +1,15 @@
-import React from 'react'
+// PARA MI NO HACE FALTA---------------
 
-const NotFound = () => {
-  return (
-    <div>
-        <p>Página no encontrada</p>
-        <p>Poner aquí una imagen graciosa</p>
-        <p>o tierna</p>
-    </div>
-  )
-}
+// import React from 'react'
 
-export default NotFound
+// const NotFound = () => {
+//   return (
+//     <div>
+//         <p>Página no encontrada</p>
+//         <p>Poner aquí una imagen graciosa</p>
+//         <p>o tierna</p>
+//     </div>
+//   )
+// }
+
+// export default NotFound
