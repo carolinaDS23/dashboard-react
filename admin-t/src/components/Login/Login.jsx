@@ -1,12 +1,11 @@
 //---login modificado ultimo----
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-//import axiosConfigs from "../../service/axiosConfigs";
-import { login } from "../../service/authService"; 
+import { login } from "../../service/userService"; 
+
 
 
 const Login = () => {
@@ -21,42 +20,52 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      console.log("📩 Enviando credenciales:", credentials);
+        console.log("📩 Enviando credenciales:", credentials);
       
-      const responseData = await login(credentials);
-      console.log("📡 Respuesta de la API:", responseData);
+        const responseData = await login(credentials);
+        console.log("📡 Respuesta completa de la API:", responseData);
   
-      if (!responseData?.data?.token) {
-        throw new Error("La API no devolvió los datos esperados");
-      }
-  
-      const { token } = responseData.data;
-  
-      // Guardar el token en localStorage
-      localStorage.setItem("token", token);
-  
-      // Decodificar el token para extraer el rol del usuario
-      const payload = JSON.parse(atob(token.split(".")[1])); // Decodifica el token
-console.log("🔍 Payload decodificado:", JSON.stringify(payload, null, 2));
+        if (!responseData?.data?.token) {
+            throw new Error("La API no devolvió los datos esperados");
+        }
 
-  
-      // Extraer el rol del usuario y guardarlo en localStorage
-const userRole = payload.role || payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || "SinRol";
-localStorage.setItem("userRole", userRole);
-console.log("✅ Rol guardado en localStorage:", userRole);
+        const { token } = responseData.data;
 
-  
-      console.log("✅ Login exitoso:", { token, userRole });
-  
-      // Redirigir al Dashboard
-      console.log("🔄 Redirigiendo al Dashboard...");
-      navigate("/dashboard");
-  
+        // Guardar el token en localStorage
+        localStorage.setItem("token", token);
+
+        // Decodificar el token para extraer el payload
+        const payloadBase64 = token.split(".")[1];
+        const payloadJSON = atob(payloadBase64);
+        const payload = JSON.parse(payloadJSON);
+
+        console.log("🔍 Payload decodificado:", payload);
+
+        // Extraer el rol del usuario desde diferentes posibles ubicaciones
+        const userRole =
+            payload.role || 
+            payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || 
+            "SinRol";
+
+        // Guardar en localStorage
+        localStorage.setItem("userRole", userRole);
+        console.log("✅ Rol guardado en localStorage:", userRole);
+
+        // Verificar que se guardó correctamente
+        console.log("📂 Verificando localStorage: userRole =", localStorage.getItem("userRole"));
+
+        console.log("✅ Login exitoso:", { token, userRole });
+
+        // Redirigir al Dashboard
+        console.log("🔄 Redirigiendo al Dashboard...");
+        navigate("/dashboard");
+
     } catch (error) {
-      console.error("❌ Error en el login:", error);
-      setError(error.message || "Error al iniciar sesión");
+        console.error("❌ Error en el login:", error);
+        setError(error.message || "Error al iniciar sesión");
     }
-  };
+};
+
   
   // const handleLogin = async (e) => {
   //   e.preventDefault();

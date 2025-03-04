@@ -1,73 +1,156 @@
 import { useState, useEffect } from "react";
-import { Container, Table, Button, Row, Col, Dropdown } from "react-bootstrap";
-import { getUsersPaged } from "../../service/apiService";
-
-const usersPerPage = 3;
+import { Container, Table, Button, Row, Col, Modal, Form } from "react-bootstrap";
+import { getAdministratorsPaged, deleteUserAsAdmin, updateUser } from "../../service/userService";
+import "./User.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const User = () => {
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [users, setUsers] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 3;
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const data = await getUsersPaged(currentPage, usersPerPage);
-      
-      if (data) {
-        console.log("📊 Datos de usuarios recibidos:", data);
-
-        setUsers(data.users ?? []);
-        setTotalPages(Math.ceil(data.totalRecords / usersPerPage));
+      try {
+        const response = await getAdministratorsPaged(currentPage, usersPerPage);
+        if (response) {
+          console.log("📊 Datos de usuarios recibidos:", response);
+          setUsers(response.data.users ?? []);
+          setTotalPages(Math.max(1, Math.ceil((response.data.totalRecords ?? 1) / usersPerPage)));
+        }
+      } catch (error) {
+        console.error("⚠️ Error al obtener usuarios:", error);
       }
     };
+
     fetchUsers();
-  }, [currentPage]);
+  }, [currentPage, usersPerPage]);
 
-  const changeStatus = (userId, action) => {
-    const userType = Number(localStorage.getItem("userType")); // Convertir a número
-    console.log("🔍 userType en changeStatus:", userType);
-  
-    if (userType !== 1) {
-      console.error("❌ No tienes permisos para modificar usuarios.");
-      return;
-    }
-  
-    fetch(`http://localhost:5296/api/User/${action}/${userId}`, { method: "PUT" })
-      .then(response => response.json())
-      .then(data => console.log(`✅ Estado actualizado:`, data))
-      .catch(error => console.error("❌ Error al actualizar estado:", error));
-  };
-  // const changeStatus = (userId, action) => {
-  //   if (Number(localStorage.getItem("userType")) !== 1) {
-  //     console.error("❌ No tienes permisos para modificar usuarios.");
-  //     return;
-  //   }
+  useEffect(() => {
+    console.log("📢 Cambio detectado en showModal:", showModal);
+  }, [showModal]);
 
-  //   fetch(`http://localhost:5296/api/User/${action}/${userId}`, { method: "PUT" })
-  //     .then(response => response.json())
-  //     .then(data => console.log(`✅ Estado actualizado:`, data))
-  //     .catch(error => console.error("❌ Error al actualizar estado:", error));
-  // };
+  // ✅ Nuevo useEffect para detectar cambios en selectedUser
+  useEffect(() => {
+    console.log("🔄 selectedUser actualizado:", selectedUser);
+  }, [selectedUser]);
 
-  const deleteUser = (userId) => {
-    console.log("🔍 userType almacenado en localStorage:", localStorage.getItem("userType"));
-  
-    if (Number(localStorage.getItem("userType")) !== 1) {
-      console.error("❌ No tienes permisos para eliminar usuarios.");
-      return;
-    }
-    fetch(`http://localhost:5296/api/User/${userId}`, { method: "DELETE" })
-      .then(response => response.json())
-      .then(data => {
-        console.log(`🗑 Usuario eliminado:`, data);
+  const handleDeleteUser = async (userId) => {
+    try {
+
+      const result = await deleteUserAsAdmin(userId);
+      if (result.success) {
+        console.log("🗑 Usuario eliminado correctamente:", result.message);
         setUsers((prevUsers) => prevUsers.filter((user) => user.idUser !== userId));
-      })
-      .catch(error => console.error("❌ Error al eliminar usuario:", error));
+      } else {
+        console.error("❌ Error al eliminar usuario:", result.message);
+      }
+    } catch (error) {
+      console.error("⚠️ Excepción en handleDeleteUser:", error);
+    }
+  };
+
+  const handleUpdateUser = async () => {
+    try {
+      console.log("🚀 selectedUser antes de actualizar:", selectedUser);
+  
+      if (!selectedUser || !selectedUser.idUser) {
+        console.error("❌ Error: idUser es undefined o null", selectedUser);
+        return;
+      }
+  
+      console.log("📌 Intentando actualizar usuario:", selectedUser);
+  
+      // Validar si birthDate es válido antes de convertirlo
+      let formattedBirthDate = "";
+      if (selectedUser.birthDate) {
+        const parsedDate = new Date(selectedUser.birthDate);
+        if (!isNaN(parsedDate.getTime())) {
+          formattedBirthDate = parsedDate.toISOString().split("T")[0]; // Solo fecha sin hora
+        }
+      }
+  
+      // Datos actualizados
+      const updatedData = {
+        idUser: selectedUser.idUser,
+        name: selectedUser.name?.trim() || "Nuevo Nombre",
+        lastName: selectedUser.lastName?.trim() || "Nuevo Apellido",
+        email: selectedUser.email?.trim() || "ejemplo@email.com",
+        birthDate: formattedBirthDate || null, // Enviar `null` si no hay fecha válida
+        nationality: selectedUser.nationality || "Argentina",
+        province: selectedUser.province || "Córdoba",
+      };
+  
+      console.log("📡 Enviando datos corregidos:", JSON.stringify(updatedData, null, 2));
+  
+      // Llamada a la API
+      const response = await updateUser(selectedUser.idUser, updatedData);
+      console.log("✅ Usuario actualizado con éxito:", response.data);
+    } catch (error) {
+      console.error("❌ Error al actualizar usuario:", error.response?.data || error.message);
+    }
+  };
+  
+
+  const handleEditClick = (user) => {
+    console.log("📝 Usuario seleccionado para editar:", user);
+    setSelectedUser({ ...user }); // Clonar el objeto para evitar mutaciones
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
   return (
     <Container className="mt-4">
       <h2 className="text-center">Lista de Usuarios</h2>
+
+      {/* ✅ MODAL USANDO REACT-BOOTSTRAP */}
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Editar Usuario</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <Form>
+              <Form.Group>
+                <Form.Label>Nombre</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.name}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, name: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Apellido</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={selectedUser.lastName}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={selectedUser.email}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
+                />
+              </Form.Group>
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
+          <Button variant="primary" onClick={handleUpdateUser}>Actualizar</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ✅ TABLA DE USUARIOS */}
       <Table striped bordered hover responsive>
         <thead className="bg-primary text-white">
           <tr>
@@ -75,7 +158,6 @@ const User = () => {
             <th>Apellido</th>
             <th>Email</th>
             <th>Estado</th>
-            <th>estado de usuario</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -88,25 +170,8 @@ const User = () => {
                 <td>{user.email}</td>
                 <td>{user.entityStatus}</td>
                 <td>
-                  {console.log("📌 user en Dropdown:", user)}
-
-                  <Dropdown>
-                    <Dropdown.Toggle variant={user.status === "Activo" ? "success" : "danger"}>
-                      {user.status}
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => changeStatus(user.idUser, "activar")}>
-                        Activar
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => changeStatus(user.idUser, "bloquear")}>
-                        Bloquear
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </td>
-                <td>
-                  <Button variant="warning" className="me-2">Editar</Button>
-                  <Button variant="danger" onClick={() => deleteUser(user.idUser)}>Eliminar</Button>
+                  <Button variant="warning" className="me-2" onClick={() => handleEditClick(user)}>Editar</Button>
+                  <Button variant="danger" onClick={() => handleDeleteUser(user.idUser)}>Eliminar</Button>
                 </td>
               </tr>
             ))
@@ -118,22 +183,15 @@ const User = () => {
         </tbody>
       </Table>
 
+      {/* ✅ BOTONES DE PAGINACIÓN */}
       <Row className="justify-content-center mt-3">
         <Col xs="auto">
-          <Button
-            variant="secondary"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          >
+          <Button variant="secondary" disabled={currentPage <= 1} onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}>
             ⬅ Anterior
           </Button>
         </Col>
         <Col xs="auto">
-          <Button
-            variant="primary"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          >
+          <Button variant="primary" disabled={currentPage >= totalPages} onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}>
             Siguiente ➡
           </Button>
         </Col>
@@ -143,6 +201,54 @@ const User = () => {
 };
 
 export default User;
+
+// const User = () => {
+//   const [users, setUsers] = useState([]);
+//   const [totalPages, setTotalPages] = useState(1);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const usersPerPage = 3;
+  //const [ setUserRole] = useState(null);
+
+  // useEffect(() => {
+  //   const storedRole = localStorage.getItem("userRole");
+  //   console.log("📂 userRole en User.jsx (localStorage):", storedRole);
+  //   setUserRole(storedRole);
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     const response = await getAdministratorsPaged(currentPage, usersPerPage);
+  //     if (response?.data) {
+  //       console.log("📊 Datos de usuarios recibidos:", response.data);
+  //       setUsers(response.data.users ?? []);
+  //       setTotalPages(Math.ceil((response.data.totalRecords ?? 1) / usersPerPage));
+  //     }
+  //   };
+    
+  //   fetchUsers();
+  // }, [currentPage, usersPerPage]); // Asegurar que usersPerPage es una dependencia si cambia
+
+  // ✅ Mueve la función dentro del componente
+  // const changeStatus = async (userId, action) => {
+  //   const userRole = localStorage.getItem("userRole");
+  //   console.log("🔍 userRole en localStorage:", userRole);
+  
+  //   if (String(userRole).trim() !== "Administrator") {
+  //     console.error("❌ No tienes permisos para modificar usuarios.");
+  //     return;
+  //   }
+  
+  //   try {
+  //     const response = await axiosConfigs.put(`/Administrator/${action}/${userId}`);
+  //     console.log(`✅ Estado actualizado:`, response.data);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("❌ Error al actualizar estado:", error);
+  //     throw new Error(error.response?.data?.message || "Error desconocido.");
+  //   }
+  // };
+
+
 
 //-----url validas ------------
 //const API_URL = "http://localhost:5296/api/User/paginado";
@@ -385,8 +491,3 @@ export default User;
 // export default User;
 
 
-
-
-
-
-  

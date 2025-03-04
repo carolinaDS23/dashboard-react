@@ -1,19 +1,23 @@
 //----ultimo modificado --//
 import axios from "axios";
 
+
 const axiosConfigs = axios.create({
-  baseURL: "http://localhost:5296", // Base de la API
+  baseURL: "http://localhost:5296/api", // Base de la API
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Interceptor para agregar el token automáticamente
+// Interceptor para agregar el token automáticamente 
 axiosConfigs.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
+      console.log("✅ Token agregado al header:", config.headers.Authorization);
+    } else {
+      console.warn("⚠️ No hay token en localStorage");
     }
     return config;
   },
@@ -21,9 +25,6 @@ axiosConfigs.interceptors.request.use(
 );
 
 export default axiosConfigs;
-
-
-
 
 // import axios from "axios";
 
