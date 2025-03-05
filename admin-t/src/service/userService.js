@@ -1,4 +1,4 @@
-import axios from "axios";
+
 import axiosConfigs from "../service/axiosConfigs";
 //---------LOGIN--//
 export const login = async (credentials) => {
@@ -16,11 +16,11 @@ export const login = async (credentials) => {
 //---OBTENER ADMINISTRADORES PAGINADOS--//
 export const getAdministratorsPaged = async (page, pageSize) => {
   try {
-    const response = await axios.get("http://localhost:5296/api/User/paginado", { // ✅ Agregamos la URL completa
+    const response = await axiosConfigs.get("http://localhost:5296/api/User/paginado", { // ✅ Agregamos la URL completa
       params: { page, pageSize }, // ✅ Pasamos los parámetros correctamente
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ Si la API requiere autenticación
-      },
+      // headers: {
+      //   Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ Si la API requiere autenticación
+      // },
     });
 
     console.log("✅ Respuesta del backend:", response.data); // ✅ Depuración
@@ -35,23 +35,43 @@ export const getAdministratorsPaged = async (page, pageSize) => {
 //---ELIMINAR USUARIO COMO ADMIN--//
 export const deleteUserAsAdmin = async (userId) => {
   try {
-    const response = await axios.delete(`http://localhost:5296/api/User/${userId}`, { // ✅ Agregamos la URL completa
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ Incluimos el token si es requerido
-      },
-    });
-
-    console.log("✅ Usuario eliminado por administrador:", response.data);
-    return { success: true, message: response.data.message };
+    const response = await axiosConfigs.delete(`/User/${userId}`);
+    console.log("✅ Usuario eliminado:", response.data);
+    
+    return {
+      success: response.data.success ?? true, // 📌 Si el backend no envía `success`, asumimos `true`
+      message: response.data.message || "Usuario eliminado correctamente.",
+    };
   } catch (error) {
     console.error("❌ Error en deleteUserAsAdmin:", error);
-    return { success: false, message: error.response?.data?.message || "Error al eliminar usuario." };
+    return {
+      success: false,
+      message: error.response?.data?.message || "Error al eliminar usuario.",
+    };
   }
 };
+
+// export const deleteUserAsAdmin = async (userId) => {
+//   try {
+//     const response = await axiosConfigs.delete(`http://localhost:5296/api/User/${userId}`, { // ✅ Agregamos la URL completa
+//       // headers: {
+//       //   Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ Incluimos el token si es requerido
+//       // },
+//     });
+
+//     console.log("✅ Usuario eliminado por administrador:", response.data);
+//     return { success: true, message: response.data.message };
+//   } catch (error) {
+//     console.error("❌ Error en deleteUserAsAdmin:", error);
+//     return { success: false, message: error.response?.data?.message || "Error al eliminar usuario." };
+//   }
+// };
 
 
  //---MODIFICAR USUARIO--// 
  export const updateUser = async (userData) => {
+  const { idUser, ...updatedData } = userData; // 📌 Extraemos idUser
+  console.log("📡 Datos recibidos en updateUser:", userData);
   if (!userData?.idUser) {
     console.error("❌ Error: idUser es undefined o null");
     return {
@@ -62,37 +82,65 @@ export const deleteUserAsAdmin = async (userId) => {
 
   try {
     console.log("📡 Datos enviados a la API:", JSON.stringify(userData, null, 2));
-
-    const response = await axios.put(
-      `http://localhost:5296/api/User/modificar/${userData.idUser}`, // ✅ Ahora el ID está validado
-      userData,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("✅ Respuesta del servidor:", response.data);
+    const response = await axiosConfigs.put(`/User/modificar/${idUser}`, updatedData);
+    console.log("✅ Usuario actualizado:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ Error en updateUser:", error.response?.status, error.response?.data);
-
+    console.error("❌ Error en updateUser:", error.response?.data);
     return {
       success: false,
       message: error.response?.data?.message || "Error al actualizar usuario.",
-      errors: error.response?.data?.errors || null,
     };
   }
 };
+ //  export const updateUser = async (userData) => {
+//   const { idUser, ...updatedData } = userData; // 📌 Extraemos idUser
+//   console.log("📡 Datos recibidos en updateUser:", userData);
+//   if (!userData?.idUser) {
+//     console.error("❌ Error: idUser es undefined o null");
+//     return {
+//       success: false,
+//       message: "Error: El ID de usuario es requerido.",
+//     };
+//   }
+
+//   try {
+//     console.log("📡 Datos enviados a la API:", JSON.stringify(userData, null, 2));
+//     const response = await axiosConfigs.put(`/User/modificar/${idUser}`, updatedData);
+//     console.log("✅ Usuario actualizado:", response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error("❌ Error en updateUser:", error.response?.data);
+//     return {
+//       success: false,
+//       message: error.response?.data?.message || "Error al actualizar usuario.",
+//     };
+//   }
+// };
+    
+    
+    //   console.log("✅ Usuario actualizado:", response.data);
+  //   return response.data;
+  //       // headers: {
+  //       //   Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //       //   "Content-Type": "application/json",
+  //       // },
+  //     }
+  //   );
+
+  //   console.log("✅ Respuesta del servidor:", response.data);
+   
+  // } catch (error) {
+  //   console.error("❌ Error en updateUser:", error.response?.status, error.response?.data);
+
+ 
 //---ACTIVAR USUARIO--//
 export const activateUser = async (idUser) => {
   try {
-    const response = await axios.put(`http://localhost:5296/api/User/activar/${idUser}`, null, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`, // 📌 Se incluye el token
-      },
+    const response = await axiosConfigs.put(`http://localhost:5296/api/User/activar/${idUser}`, null, {
+      // headers: {
+      //   Authorization: `Bearer ${localStorage.getItem("token")}`, // 📌 Se incluye el token
+      // },
     });
 
     console.log(`✅ Usuario con ID ${idUser} activado con éxito:`, response.data);
@@ -106,13 +154,13 @@ export const activateUser = async (idUser) => {
  //---BLOQUEAR USUARIO--//
  export const blockUser = async (idUser) => {
   try {
-    const response = await axios.put(
+    const response = await axiosConfigs.put(
       `http://localhost:5296/api/User/bloquear/${idUser}`, 
       null, 
       {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${localStorage.getItem("token")}`,
+        // },
       }
     );
 
@@ -126,12 +174,6 @@ export const activateUser = async (idUser) => {
     };
   }
 };
-
-
-
-
-
-
 
 
 
