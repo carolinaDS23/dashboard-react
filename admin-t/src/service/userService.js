@@ -1,4 +1,4 @@
-
+import axios from "axios"; 
 import axiosConfigs from "../service/axiosConfigs";
 //---------LOGIN--//
 export const login = async (credentials) => {
@@ -16,7 +16,7 @@ export const login = async (credentials) => {
 //---OBTENER ADMINISTRADORES PAGINADOS--//
 export const getAdministratorsPaged = async (page, pageSize) => {
   try {
-    const response = await axiosConfigs.get("http://localhost:5296/api/User/paginado", { // ✅ Agregamos la URL completa
+    const response = await axiosConfigs.get("User/paginado", { // ✅ Agregamos la URL completa
       params: { page, pageSize }, // ✅ Pasamos los parámetros correctamente
       // headers: {
       //   Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ Si la API requiere autenticación
@@ -51,49 +51,31 @@ export const deleteUserAsAdmin = async (userId) => {
   }
 };
 
-// export const deleteUserAsAdmin = async (userId) => {
-//   try {
-//     const response = await axiosConfigs.delete(`http://localhost:5296/api/User/${userId}`, { // ✅ Agregamos la URL completa
-//       // headers: {
-//       //   Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ Incluimos el token si es requerido
-//       // },
-//     });
-
-//     console.log("✅ Usuario eliminado por administrador:", response.data);
-//     return { success: true, message: response.data.message };
-//   } catch (error) {
-//     console.error("❌ Error en deleteUserAsAdmin:", error);
-//     return { success: false, message: error.response?.data?.message || "Error al eliminar usuario." };
-//   }
-// };
-
-
- //---MODIFICAR USUARIO--// 
- export const updateUser = async (userData) => {
-  const { idUser, ...updatedData } = userData; // 📌 Extraemos idUser
-  console.log("📡 Datos recibidos en updateUser:", userData);
-  if (!userData?.idUser) {
-    console.error("❌ Error: idUser es undefined o null");
-    return {
-      success: false,
-      message: "Error: El ID de usuario es requerido.",
-    };
-  }
-
+ export const updateUser = async (idUser, updatedData) => {
   try {
-    console.log("📡 Datos enviados a la API:", JSON.stringify(userData, null, 2));
-    const response = await axiosConfigs.put(`/User/modificar/${idUser}`, updatedData);
-    console.log("✅ Usuario actualizado:", response.data);
-    return response.data;
+    
+    const response = await axios.put(`http://localhost:5296/api/User/modificar/${idUser}`,
+      updatedData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, 
+        },
+      }
+    );
+if (response.data.success) { 
+  alert(response.data.message );
+  return response.data;
+} else {
+  alert(response.data.message || "Ocurrió un error al actualizar el usuario.");
+  console.log (response.data.message)
+}
+
   } catch (error) {
     console.error("❌ Error en updateUser:", error.response?.data);
-    return {
-      success: false,
-      message: error.response?.data?.message || "Error al actualizar usuario.",
-    };
   }
 };
- //  export const updateUser = async (userData) => {
+
+
 //   const { idUser, ...updatedData } = userData; // 📌 Extraemos idUser
 //   console.log("📡 Datos recibidos en updateUser:", userData);
 //   if (!userData?.idUser) {
@@ -137,12 +119,12 @@ export const deleteUserAsAdmin = async (userId) => {
 //---ACTIVAR USUARIO--//
 export const activateUser = async (idUser) => {
   try {
-    const response = await axiosConfigs.put(`http://localhost:5296/api/User/activar/${idUser}`, null, {
-      // headers: {
-      //   Authorization: `Bearer ${localStorage.getItem("token")}`, // 📌 Se incluye el token
-      // },
-    });
-
+    const response = await axios.put(`http://localhost:5296/api/User/activar/${idUser}`, null, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, 
+      },
+    }
+  );
     console.log(`✅ Usuario con ID ${idUser} activado con éxito:`, response.data);
     return response.data;
   } catch (error) {
@@ -151,16 +133,16 @@ export const activateUser = async (idUser) => {
   }
 };
 
- //---BLOQUEAR USUARIO--//
+ 
  export const blockUser = async (idUser) => {
   try {
-    const response = await axiosConfigs.put(
+    const response = await axios.put(
       `http://localhost:5296/api/User/bloquear/${idUser}`, 
       null, 
       {
-        // headers: {
-        //   Authorization: `Bearer ${localStorage.getItem("token")}`,
-        // },
+         headers: {
+           Authorization: `Bearer ${localStorage.getItem("token")}`,
+         },
       }
     );
 
@@ -178,135 +160,3 @@ export const activateUser = async (idUser) => {
 
 
 
-// import axios from "axios";
-// //import api from "./axiosConfigs"; // 👈 Importamos la configuración de Axios
-// import axiosConfigs from "./axiosConfigs"; 
-// import { deleteUser } from "../../service/apiService";
-
-
-
-// export const getUsersPaged = async (page, pageSize) => {
-//   const token = localStorage.getItem("token"); // Recuperar el token del localStorage
-//   console.log("🔑 Token recuperado:", token); // Para depuración
-
-//   if (!token) {
-//     console.error("🚨 No hay token disponible. El usuario debe iniciar sesión.");
-//     return null;
-//   }
-
-//   try {
-//     const response = await axios.get(`http://localhost:5296/api/User/paginado`, {
-//       params: { page, pageSize },
-//       headers: {
-//         Authorization: `Bearer ${token}`, // 🔥 Se agrega el token en la cabecera
-//       },
-//     });
-
-//     console.log("✅ Respuesta del backend:", response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error("❌ Error obteniendo usuarios:", error.response?.data || error);
-//     return null;
-//   }
-// };
-
-// export const updateUser = async (id, userData) => {
-//   if (!id) {
-//     console.error("🚨 Error en updateUser: ID es undefined o null.");
-//     return null;
-//   }
-
-//   try {
-//     console.log(`🟢 Enviando PUT a /User/modificar/${id} con:`, userData);
-//     const response = await axios.put(`/api/User/modificar/${id}`, userData);
-//     return response.data;
-//   } catch (error) {
-//     console.error("❌ Error actualizando usuario:", error.response?.data || error);
-//     throw error;
-//   }
-// };
-
-
-
-// export const deleteUser = async (userId) => {
-//   try {
-//       const response = await axiosConfigs.delete(`/User/${userId}`);
-//       return response.data; // Retorna la respuesta si es exitosa
-//   } catch (error) {
-//       console.error("❌ Error eliminando usuario:", error.response?.data || error);
-//       return null;
-//   }
-// };
-
-
-
-
-
-// export const deleteUser = async (userId) => {
-//   try {
-//     const response = await axios.delete(`http://localhost:5296/api/User/${userId}`, {
-//       headers: {
-//         Authorization: `Bearer ${localStorage.getItem("token")}`, // Si la API requiere autenticación
-//       },
-//     });
-
-//     return response.data; // El return debe estar fuera de axios.delete
-//   } catch (error) {
-//     console.error("Error eliminando usuario:", error);
-//     return null;
-//   }
-// };
-
-// export const changeUserStatus = async (userId, action) => {
-//   const endpoint = action === "activar" ? "activar" : "bloquear";
-//   try {
-//     const response = await axios.put(`/api/User/${endpoint}/${userId}`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error cambiando estado del usuario:", error);
-//     return null;
-//   }
-// };
-
-// export const getUsersPaged = async (page, pageSize) => {
-//   console.log("📌 Parámetros enviados:", { page, pageSize }); // Depuración
-
-//   try {
-//     const response = await axios.get(`http://localhost:5296/api/User/paginado`, {
-//       params: { page, pageSize },
-//     });
-
-//     console.log("✅ Respuesta del backend:", response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error("❌ Error obteniendo usuarios:", error.response?.data || error);
-//     return null;
-//   }
-// };
-
-// import axios from "axios";
-
-// const api = axios.create({
-//   baseURL: "http://localhost:5296",
-//   headers: { "Content-Type": "application/json" }
-// });
-
-// export const getUsersPaged = async (page, limit) => {
-//   try {
-//     const response = await axios.get(`/api/User/paginado?page=${page}&limit=${limit}`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error obteniendo usuarios:", error);
-//     return null;
-//   }
-// };
-
-// export const updateUser = async (userId, data) => {
-//   try {
-//     const response = await axios.put(`/api/User/modificar/${userId}`, data);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error actualizando usuario:", error);
-//     return null;
-//   }
-// };

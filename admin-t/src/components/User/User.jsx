@@ -4,6 +4,7 @@ import { getAdministratorsPaged, deleteUserAsAdmin, updateUser } from "../../ser
 import "./User.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+
 const User = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -17,7 +18,7 @@ const User = () => {
       try {
         const response = await getAdministratorsPaged(currentPage, usersPerPage);
         if (response) {
-          console.log("📊 Datos de usuarios recibidos:", response);
+          
           setUsers(response.data.users ?? []);
           setTotalPages(Math.max(1, Math.ceil((response.data.totalRecords ?? 1) / usersPerPage)));
         }
@@ -33,7 +34,7 @@ const User = () => {
     console.log("📢 Cambio detectado en showModal:", showModal);
   }, [showModal]);
 
-  // Función onUserUpdated para actualizar la lista de usuarios después de una modificación
+  
   const updateUserStateLocally = (idUser, newState) => {
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
@@ -55,11 +56,10 @@ const User = () => {
 
   const handleActivateUser = async (idUser) => {
     try {
-      // Reemplaza "activateUser" con tu lógica real de activación
-      const response = { success: true, message: "Usuario activado" }; // Ejemplo de respuesta
+      const response = { success: true, message: "Usuario activado" }; 
       if (response.success) {
         alert("Usuario activado con éxito");
-        updateUserStateLocally(idUser, 1); // Actualiza en el estado local sin recargar toda la lista
+        updateUserStateLocally(idUser, 1); 
       } else {
         alert(`Error: ${response.message}`);
       }
@@ -70,7 +70,7 @@ const User = () => {
 
   const handleBlockUser = async (idUser) => {
     try {
-      // Reemplaza con tu lógica real de bloqueo
+      
       const response = { success: true, message: "Usuario bloqueado" }; // Ejemplo de respuesta
       if (response.success) {
         alert("Usuario bloqueado con éxito");
@@ -83,12 +83,12 @@ const User = () => {
   }
 };
 
-  const handleDeleteUser = async (userId) => {
+  const handleDeleteUser = async (idUser) => {
     try {
-      const result = await deleteUserAsAdmin(userId);
+      const result = await deleteUserAsAdmin(idUser);
       if (result?.success) {
         alert("Usuario eliminado con éxito");
-      updateUserStateLocally(userId, 0);
+      updateUserStateLocally(idUser, 0);
     } else {
       alert(`Error al eliminar usuario: ${result?.message}`);
     }
@@ -104,25 +104,18 @@ const User = () => {
         return;
       }
 
-      let formattedBirthDate = "";
-      if (selectedUser.birthDate) {
-        const parsedDate = new Date(selectedUser.birthDate);
-        if (!isNaN(parsedDate.getTime())) {
-          formattedBirthDate = parsedDate.toISOString().split("T")[0];
-        }
-      }
-
       const updatedData = {
         idUser: selectedUser.idUser,
-        name: selectedUser.name?.trim() || "Nuevo Nombre",
-        lastName: selectedUser.lastName?.trim() || "Nuevo Apellido",
-        email: selectedUser.email?.trim() || "ejemplo@email.com",
-        birthDate: formattedBirthDate || null,
-        nationality: selectedUser.nationality?.trim() || "Argentina",
-        province: selectedUser.province?.trim() || "Córdoba",
+        name: selectedUser.name?.trim() || "",
+        lastName: selectedUser.lastName?.trim() || "",
+        password: selectedUser.password?.trim() || "",
+        email: selectedUser.email?.trim() || "",
+        birthDate: "",
+        nationality: selectedUser.nationality?.trim() || "",
+        province: selectedUser.province?.trim() || "",
       };
 
-      console.log(" Datos enviados:", JSON.stringify(updatedData, null, 2));
+      
       const response = await updateUser(updatedData.idUser, updatedData);
       console.log("✅ Usuario actualizado con éxito:", response.data);
       onUserUpdated();
@@ -132,11 +125,21 @@ const User = () => {
   };
 
   const handleEditClick = (user) => {
-    console.log("📝 Usuario seleccionado para editar:", user);
-    setSelectedUser({ ...user });
+        
+    setSelectedUser({
+      idUser: user.idUser ?? user.id,  
+      name: user.name || "",
+      lastName: user.lastName || "",
+      //password: password || "",
+      email: user.email || "",
+      birthDate: user.birthDate || "",
+      nationality: user.nationality || "",
+      province: user.province || ""
+    });
+  
     setShowModal(true);
   };
-
+ 
   const handleCloseModal = () => {
     setSelectedUser(null);
     setShowModal(false);
@@ -158,7 +161,7 @@ const User = () => {
                  <Form.Control
                    type="text"
                    value={selectedUser?.name}
-                   onChange={(e) => setSelectedUser({ ...selectedUser, name: e.target.value })}
+                   onChange={(e) => setSelectedUser(prev => ({ ...prev, name: e.target.value }))}
                  />
                </Form.Group>
                <Form.Group>
@@ -166,7 +169,8 @@ const User = () => {
                  <Form.Control
                    type="text"
                    value={selectedUser?.lastName}
-                   onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })}
+                   onChange={(e) => setSelectedUser(prev => ({ ...prev, lastName: e.target.value }))}
+
                  />
                </Form.Group>
                <Form.Group>
@@ -174,7 +178,7 @@ const User = () => {
                  <Form.Control
                    type="email"
                    value={selectedUser?.email}
-                   onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
+                   onChange={(e) => setSelectedUser(prev => ({ ...prev, email: e.target.value }))}
                  />
                </Form.Group>
              </Form>
@@ -190,6 +194,7 @@ const User = () => {
        <Table striped bordered hover responsive>
          <thead className="bg-primary text-white">
            <tr>
+             <th>ID</th> {/* Nueva columna para ID */}
              <th>Nombre</th>
              <th>Apellido</th>
              <th>Email</th>
@@ -200,6 +205,7 @@ const User = () => {
          <tbody>
            {users.length > 0 ? (
              users.map((user, index) => (               <tr key={user.idUser || `no-id-${index}`}>
+                 <td>{user.idUser}</td> {/* Mostrar el ID de cada usuario */}
                  <td>{user.name}</td>
                  <td>{user.lastName}</td>
                  <td>{user.email}</td>
