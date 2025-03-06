@@ -25,11 +25,10 @@ const NavBar = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-          {/* <Nav.Link as={Link} to="/admin-panel">Admin Panel</Nav.Link>  ✅ Panel de admin */}
-          <Nav.Link as={Link} to="/dashboard/users">Users</Nav.Link> {/* ✅ Grilla de usuarios */}
-          <Nav.Link as={Link} to="/dashboard/posts">Posts</Nav.Link> {/* ✅ Página de Posts */}
-          <Nav.Link as={Link} to="/dashboard/courses">Courses</Nav.Link> {/* ✅ Página de Courses */}
-
+          
+          <Nav.Link as={Link} to="/dashboard/users">Users</Nav.Link> 
+          <Nav.Link as={Link} to="/dashboard/posts">Posts</Nav.Link> 
+          <Nav.Link as={Link} to="/dashboard/courses">Courses</Nav.Link> 
           </Nav>
           <Nav>
             {isAuthenticated ? (

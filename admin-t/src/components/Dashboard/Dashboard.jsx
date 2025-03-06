@@ -8,10 +8,10 @@ const Dashboard = () => {
       <h1>Bienvenido al Dashboard</h1>
       <nav>
         <ul>
-          <li><Link to="users">Usuarios</Link></li> {/* ✅ Enlace relativo */}
+          <li><Link to="users">Usuarios</Link></li> 
         </ul>
       </nav>
-      <Outlet /> {/* ✅ Aquí se renderizarán las rutas anidadas */}
+      <Outlet /> 
     </div>
   );
 };

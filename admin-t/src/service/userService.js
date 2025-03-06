@@ -63,28 +63,6 @@ export const deleteUserAsAdmin = async (userId) => {
     };
   }
 };
-// export const deleteUserAsAdmin = async (userId) => {
-//   try {
-//     const response = await axios.delete(`http://localhost:5296/api/User/${userId}`, {
-//       headers: {
-//         Authorization: `Bearer ${localStorage.getItem("token")}`,
-//       },
-//     });
-
-//     console.log("✅ Usuario eliminado:", response.data);
-
-//     return {
-//       success: response.data.success ?? false, 
-//       message: response.data.message || "Usuario eliminado correctamente.",
-//     };
-//   } catch (error) {
-//     console.error("❌ Error en deleteUserAsAdmin:", error);
-//     return {
-//       success: false,
-//       message: error.response?.data?.message || "Error al eliminar usuario.",
-//     };
-//   }
-// };
 
 
  export const updateUser = async (idUser, updatedData) => {
@@ -115,7 +93,7 @@ export const blockUser = async (idUser) => {
   try {
     const response = await axios.put(
       `http://localhost:5296/api/User/bloquear/${idUser}`,
-      {}, // No enviamos datos en el body
+      {}, 
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -165,45 +143,6 @@ export const activateUser = async (idUser) => {
 
 
 
-
-// export const activateUser = async (idUser) => {
-//   try {
-//     const response = await axios.put(`http://localhost:5296/api/User/activar/${idUser}`, {}, {
-//       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-//     });
-//     console.log(`✅ Usuario activado con ID: ${idUser}`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("❌ Error en activateUser:", error);
-//     return { success: false, message: error.response?.data?.message || "Error al activar usuario." };
-//   }
-// };
-
- 
-// export const blockUser = async (idUser) => {
-//   try {
-//     console.log(`🔵 Enviando petición para bloquear usuario con ID: ${idUser}`);
-
-//     const response = await axios.put(
-//       `http://localhost:5296/api/User/bloquear/${idUser}`,
-//       {}, 
-//       {
-//         headers: {
-//           Authorization: `Bearer ${localStorage.getItem("token")}`,
-//         },
-//       }
-//     );
-
-//     console.log(`✅ Usuario con ID ${idUser} bloqueado con éxito:`, response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error("❌ Error en blockUser:", error.response?.data || error);
-//     return { 
-//       success: false, 
-//       message: error.response?.data?.message || "Error al bloquear usuario." 
-//     };
-//   }
-// };
 
 
 

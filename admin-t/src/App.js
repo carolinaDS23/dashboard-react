@@ -24,9 +24,9 @@ const App = () => {
 
         {/* ✅ Dashboard con rutas anidadas */}
         <Route path="/dashboard/*" element={<Dashboard />}>
-          <Route path="users" element={<Users />} /> {/* 🔥 Grilla de usuarios */}
-          <Route path="posts" element={<Posts />} /> {/* 🔥 Página de Posts */}
-          <Route path="courses" element={<Courses />} /> {/* 🔥 Página de Courses */}
+          <Route path="users" element={<Users />} /> 
+          <Route path="posts" element={<Posts />} /> 
+          <Route path="courses" element={<Courses />} /> 
         </Route>
       </Routes>
     </Router>
