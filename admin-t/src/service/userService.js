@@ -1,29 +1,54 @@
 import axios from "axios"; 
-import axiosConfigs from "../service/axiosConfigs";
-//---------LOGIN--//
+
+
 export const login = async (credentials) => {
   try {
-    const response = await axiosConfigs.post("/Login", credentials);  
-    console.log("✅ Respuesta del backend:", response.data);
-    return response.data;
+    const response = await axios.post(
+      "http://localhost:5296/api/Login",
+      credentials,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, 
+        },
+      }
+    );
+
+    if (response.data.success) {
+      localStorage.setItem("token", response.data.token); // Guarda el token
+      alert(response.data.message || "Inicio de sesión exitoso");
+      return response.data;
+    } else {
+      alert(response.data.message || "Error al iniciar sesión.");
+      console.log(response.data.message);
+    }
   } catch (error) {
-    console.error("❌ Error en el login:", error.response?.data?.message || error.message);
-    throw error.response?.data?.message || "Error al iniciar sesión";
+    console.error("❌ Error en login:", error.response?.data);
+    alert(error.response?.data?.message || "Error en el inicio de sesión.");
   }
 };
 
 
-//---OBTENER ADMINISTRADORES PAGINADOS--//
+// export const login = async (credentials) => {
+//   try {
+//     const response = await axios.post("/Login", credentials);  
+//     console.log("✅ Respuesta del backend:", response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error("❌ Error en el login:", error.response?.data?.message || error.message);
+//     throw error.response?.data?.message || "Error al iniciar sesión";
+//   }
+// };
+
+
+
 export const getAdministratorsPaged = async (page, pageSize) => {
   try {
-    const response = await axiosConfigs.get("User/paginado", { // ✅ Agregamos la URL completa
-      params: { page, pageSize }, // ✅ Pasamos los parámetros correctamente
-      // headers: {
-      //   Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ Si la API requiere autenticación
-      // },
-    });
-
-    console.log("✅ Respuesta del backend:", response.data); // ✅ Depuración
+    const response = await axios.get("http://localhost:5296/api/User/paginado", { 
+      params: { page, pageSize },
+       headers: {
+         Authorization: `Bearer ${localStorage.getItem("token")}`, 
+       },
+    });    
     return response.data;
   } catch (error) {
     console.error("❌ Error en getAdministratorsPaged:", error);
@@ -31,15 +56,18 @@ export const getAdministratorsPaged = async (page, pageSize) => {
   }
 };
 
-
-//---ELIMINAR USUARIO COMO ADMIN--//
 export const deleteUserAsAdmin = async (userId) => {
   try {
-    const response = await axiosConfigs.delete(`/User/${userId}`);
+    const response = await axios.delete(`http://localhost:5296/api/User/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
     console.log("✅ Usuario eliminado:", response.data);
-    
+
     return {
-      success: response.data.success ?? true, // 📌 Si el backend no envía `success`, asumimos `true`
+      success: response.data.success ?? false, 
       message: response.data.message || "Usuario eliminado correctamente.",
     };
   } catch (error) {
@@ -51,11 +79,11 @@ export const deleteUserAsAdmin = async (userId) => {
   }
 };
 
+
  export const updateUser = async (idUser, updatedData) => {
   try {
-    
-    const response = await axios.put(`http://localhost:5296/api/User/modificar/${idUser}`,
-      updatedData,
+        const response = await axios.put(`http://localhost:5296/api/User/modificar/${idUser}`,
+        updatedData,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`, 
@@ -76,47 +104,6 @@ if (response.data.success) {
 };
 
 
-//   const { idUser, ...updatedData } = userData; // 📌 Extraemos idUser
-//   console.log("📡 Datos recibidos en updateUser:", userData);
-//   if (!userData?.idUser) {
-//     console.error("❌ Error: idUser es undefined o null");
-//     return {
-//       success: false,
-//       message: "Error: El ID de usuario es requerido.",
-//     };
-//   }
-
-//   try {
-//     console.log("📡 Datos enviados a la API:", JSON.stringify(userData, null, 2));
-//     const response = await axiosConfigs.put(`/User/modificar/${idUser}`, updatedData);
-//     console.log("✅ Usuario actualizado:", response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error("❌ Error en updateUser:", error.response?.data);
-//     return {
-//       success: false,
-//       message: error.response?.data?.message || "Error al actualizar usuario.",
-//     };
-//   }
-// };
-    
-    
-    //   console.log("✅ Usuario actualizado:", response.data);
-  //   return response.data;
-  //       // headers: {
-  //       //   Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //       //   "Content-Type": "application/json",
-  //       // },
-  //     }
-  //   );
-
-  //   console.log("✅ Respuesta del servidor:", response.data);
-   
-  // } catch (error) {
-  //   console.error("❌ Error en updateUser:", error.response?.status, error.response?.data);
-
- 
-//---ACTIVAR USUARIO--//
 export const activateUser = async (idUser) => {
   try {
     const response = await axios.put(`http://localhost:5296/api/User/activar/${idUser}`, null, {
