@@ -3,6 +3,8 @@ import { Container, Table, Button, Row, Col, Modal, Form } from "react-bootstrap
 import { getAdministratorsPaged, deleteUserAsAdmin, updateUser } from "../../service/userService";
 import "./User.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { blockUser, activateUser } from '../../service/userService';  
+
 
 
 const User = () => {
@@ -54,34 +56,72 @@ const User = () => {
     }
   };
 
-  const handleActivateUser = async (idUser) => {
+  // const handleActivateUser = async (idUser) => {
+  //   try {
+  //     const response = { success: true, message: "Usuario activado" }; // Ejemplo de respuesta
+  //     if (response.success) {
+  //       alert("Usuario activado con éxito");
+  //       updateUserStateLocally(idUser, 1); // Esta función también debe estar definida
+  //     } else {
+  //       alert(`Error: ${response.message}`);
+  //     }
+  //   } catch (error) {
+  //     console.error("⚠️ Error al activar usuario:", error);
+  //   }
+  // };
+  
+
+  const handleBlockUser = async (idUser) => {
     try {
-      const response = { success: true, message: "Usuario activado" }; 
+      if (!idUser) {
+        console.error("❌ Error: idUser es undefined o null");
+        return;
+      }
+  
+      console.log(`🔵 Intentando bloquear usuario con ID: ${idUser}`);
+  
+      // Llamada a la API para bloquear usuario
+      const response = await blockUser(idUser);
+  
+      console.log("✅ Usuario bloqueado con éxito:", response.data);
+  
       if (response.success) {
-        alert("Usuario activado con éxito");
-        updateUserStateLocally(idUser, 1); 
+        alert("Usuario bloqueado con éxito");
+        updateUserStateLocally(idUser, 2); // Estado 2 = Bloqueado
       } else {
         alert(`Error: ${response.message}`);
       }
     } catch (error) {
-      console.error("⚠️ Error al activar usuario:", error);
+      console.error("❌ Error al bloquear usuario:", error.response?.data || error.message);
     }
   };
-
-  const handleBlockUser = async (idUser) => {
+  
+  const handleActivateUser = async (idUser) => {
     try {
-      
-      const response = { success: true, message: "Usuario bloqueado" }; // Ejemplo de respuesta
+      if (!idUser) {
+        console.error("❌ Error: idUser es undefined o null");
+        return;
+      }
+  
+      console.log(`🔵 Intentando activar usuario con ID: ${idUser}`);
+  
+      // Llamada a la API para activar usuario
+      const response = await activateUser(idUser);
+  
+      console.log("✅ Usuario activado con éxito:", response.data);
+  
       if (response.success) {
-        alert("Usuario bloqueado con éxito");
-      updateUserStateLocally(idUser, 2);
-    } else {
-      alert(`Error: ${response.message}`);
+        alert("Usuario activado con éxito");
+        updateUserStateLocally(idUser, 1); // Estado 1 = Activado
+      } else {
+        alert(`Error: ${response.message}`);
+      }
+    } catch (error) {
+      console.error("❌ Error al activar usuario:", error.response?.data || error.message);
     }
-  } catch (error) {
-    console.error("⚠️ Error al bloquear usuario:", error);
-  }
-};
+  };
+  
+
 
   const handleDeleteUser = async (idUser) => {
     try {
