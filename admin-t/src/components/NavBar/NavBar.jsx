@@ -21,6 +21,10 @@ const NavBar = () => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
+      <Navbar.Brand href="/home">
+                    <img src="/logo.png" alt="Logo" style={{ width: '40px', height: '40px', marginRight: '10px' }} />
+                    Talking
+                </Navbar.Brand>
         <Navbar.Brand as={Link} to="/dashboard">Admin Panel</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
