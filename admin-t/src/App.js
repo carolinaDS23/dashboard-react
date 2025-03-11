@@ -8,7 +8,7 @@ import NavBar from "./components/NavBar/NavBar";
 import Posts from "./components/Post/Posts";
 import Courses from "./components/Course/Course";
 import Register from "./components/Register/Register";
-
+import Comments from './components/Comments/Comments.jsx';
 const App = () => {
   return (
     <Router>
@@ -19,14 +19,13 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* ✅ Nueva ruta para Admin Panel */}
         <Route path="/admin-panel" element={<AdminPanel />} />
 
-        {/* ✅ Dashboard con rutas anidadas */}
         <Route path="/dashboard/*" element={<Dashboard />}>
-          <Route path="users" element={<Users />} /> {/* 🔥 Grilla de usuarios */}
-          <Route path="posts" element={<Posts />} /> {/* 🔥 Página de Posts */}
-          <Route path="courses" element={<Courses />} /> {/* 🔥 Página de Courses */}
+          <Route path="users" element={<Users />} /> 
+          <Route path="posts" element={<Posts />} /> 
+          <Route path="courses" element={<Courses />} /> 
+          <Route path="comments/:id" element={<Comments />} />
         </Route>
       </Routes>
     </Router>
