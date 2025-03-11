@@ -1,6 +1,4 @@
 import axios from "axios"; 
-
-
 export const login = async (credentials) => {
   try {
     const response = await axios.post(
@@ -27,10 +25,10 @@ export const login = async (credentials) => {
   }
 };
 
-export const getAdministratorsPaged = async (page, pageSize) => {
+export const getAdministratorsPaged = async (page, pageSize,searchTerm) => {
   try {
     const response = await axios.get("http://localhost:5296/api/User/paginado", { 
-      params: { page, pageSize },
+      params: { page, pageSize,searchTerm  },
        headers: {
          Authorization: `Bearer ${localStorage.getItem("token")}`, 
        },
@@ -140,6 +138,26 @@ export const activateUser = async (idUser) => {
 };
 
 
+export const getUserById = async (idUser) => {
+  try {
+    const response = await axios.get(`http://localhost:5296/api/User/${idUser}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    console.log("Respuesta de getUserById:", response.data);  // Log para ver el usuario obtenido
+
+    if (response.data) {
+      return response.data; // Devuelve el usuario obtenido
+    } else {
+      alert("No se encontró el usuario.");
+    }
+  } catch (error) {
+    console.error("❌ Error en getUserById:", error.response?.data);
+    alert("Ocurrió un error al obtener el usuario.");
+  }
+};
 
 
 
