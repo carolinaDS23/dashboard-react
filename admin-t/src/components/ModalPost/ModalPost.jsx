@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import postService from "../../service/Post.service";
+import "./ModalPost.css";
+import { useNavigate } from "react-router-dom";
 
 export const ModalPost = ({ show, handleClose, idPost }) => {
+  const navigate = useNavigate(); 
   const [post, setPost] = useState({
     idPost: "",
     description: "",
@@ -63,6 +66,10 @@ export const ModalPost = ({ show, handleClose, idPost }) => {
       .catch(error => console.error("Error al actualizar el post:", error));
   };
 
+  const seeComments = () => {
+    navigate(`/dashboard/comments/${post.idPost}`); // ✅ Usar navigate correctamente
+  };
+
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
@@ -97,6 +104,9 @@ export const ModalPost = ({ show, handleClose, idPost }) => {
           </Form.Group>
           <Button variant="primary" onClick={updatePost}>
             Guardar
+          </Button>
+          <Button variant="secondary" onClick={seeComments}>
+            Gestionar comentarios
           </Button>
         </Form>
       </Modal.Body>
