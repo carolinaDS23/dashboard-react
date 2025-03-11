@@ -1,8 +1,8 @@
-//--------Último modificado -//
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Button, Alert, Container, Row, Col } from "react-bootstrap"; // Importamos React Bootstrap
+import { Form, Button, Alert, Container, Row, Col } from "react-bootstrap"; 
 import axios from "axios";
 
 const Register = () => {
@@ -35,13 +35,13 @@ const Register = () => {
     try {
       const userToRegister = { 
         ...user, 
-        birthDate: new Date(user.birthDate).toISOString().split("T")[0], // Convierte la fecha a formato YYYY-MM-DD
-        userType: 1 // Asegurar que se envía el userType
+        birthDate: new Date(user.birthDate).toISOString().split("T")[0], 
+        userType: 1 
       };
 
       console.log("📤 Enviando datos:", userToRegister);
 
-      const response = await axios.post("http://localhost:5296/api/User", userToRegister);
+      const response = await axios.post("http://localhost:5296/api/Administrator", userToRegister);
       console.log("✅ Usuario registrado:", response.data);
 
       setSuccess("Registro exitoso. Redirigiendo al login...");
@@ -49,7 +49,6 @@ const Register = () => {
     } catch (error) {
       console.error("❌ Error al registrar:", error);
 
-      // Si el backend devuelve un mensaje detallado, mostrarlo
       const errorMessage =
         error.response?.data?.message || "Error en el registro.";
       setError(errorMessage);
@@ -169,243 +168,3 @@ export default Register;
 
 
 
-// import React, { useState } from "react";
-// import { Form, Button, Container } from "react-bootstrap";
-// import { useNavigate } from "react-router-dom";
-
-// const Register = () => {
-//   const [formData, setFormData] = useState({
-//     name: "",
-//     lastName: "",
-//     email: "",
-//     password: "",
-//     birthDate: "",
-//     nationality: "",
-//     province: "",
-//     userType: 2, // 1 para admin, 2 para usuario normal
-//   });
-
-//   const navigate = useNavigate();
-
-//   const handleChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value,
-//     });
-//   };
-
-//   const handleRegister = async (e) => {
-//     e.preventDefault();
-
-//     try {
-//       const response =  await fetch("http://localhost:5296/api/Administrator", { 
-//         // 🚨 Asegúrate de que esta ruta sea la correcta en tu backend
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(formData),
-//       });
-
-//       const data = await response.json(); 
-
-//       if (response.ok) {
-//         if (data.token) {
-//           localStorage.setItem("token", data.token); // ✅ Guarda el token si lo envía la API
-//           alert("Usuario registrado y autenticado correctamente");
-//           navigate("/dashboard"); // ✅ Redirige al dashboard o home
-//         } else {
-//           alert("Registro exitoso, pero no se recibió un token.");
-//           navigate("/login"); // En caso de que no devuelva token, redirige al login
-//         }
-//       } else {
-//         alert(`Error: ${data.message || "No autorizado"}`);
-//       }
-//     } catch (error) {
-//       console.error("Error:", error);
-//       alert("No se pudo conectar con el servidor");
-//     }
-//   };
-
-//   return (
-//     <Container className="mt-4">
-//       <h2>Registro</h2>
-//       <Form onSubmit={handleRegister}>
-//         <Form.Group controlId="formName">
-//           <Form.Label></Form.Label>
-//           <Form.Control
-//             type="text"
-//             name="name"
-//             placeholder="Ingrese su nombre"
-//             value={formData.name}
-//             onChange={handleChange}
-//             required
-//           />
-//         </Form.Group>
-
-//         <Form.Group controlId="formLastName">
-//           <Form.Label></Form.Label>
-//           <Form.Control
-//             type="text"
-//             name="lastName"
-//             placeholder="Ingrese su apellido"
-//             value={formData.lastName}
-//             onChange={handleChange}
-//             required
-//           />
-//         </Form.Group>
-
-//         <Form.Group controlId="formEmail">
-//           <Form.Label></Form.Label>
-//           <Form.Control
-//             type="email"
-//             name="email"
-//             placeholder="Ingrese su email"
-//             value={formData.email}
-//             onChange={handleChange}
-//             required
-//           />
-//         </Form.Group>
-
-//         <Form.Group controlId="formPassword">
-//           <Form.Label></Form.Label>
-//           <Form.Control
-//             type="password"
-//             name="password"
-//             placeholder="Ingrese su contraseña"
-//             value={formData.password}
-//             onChange={handleChange}
-//             required
-//           />
-//         </Form.Group>
-
-//         <Form.Group controlId="formBirthDate">
-//           <Form.Label></Form.Label>
-//           <Form.Control
-//             type="date"
-//             name="birthDate"
-//             value={formData.birthDate}
-//             onChange={handleChange}
-//             required
-//           />
-//         </Form.Group>
-
-//         <Form.Group controlId="formNationality">
-//           <Form.Label></Form.Label>
-//           <Form.Control
-//             type="text"
-//             name="nationality"
-//             placeholder="Ingrese su nacionalidad"
-//             value={formData.nationality}
-//             onChange={handleChange}
-//             required
-//           />
-//         </Form.Group>
-
-//         <Form.Group controlId="formProvince">
-//           <Form.Label></Form.Label>
-//           <Form.Control
-//             type="text"
-//             name="province"
-//             placeholder="Ingrese su provincia"
-//             value={formData.province}
-//             onChange={handleChange}
-//             required
-//           />
-//         </Form.Group>
-
-//         <Form.Group controlId="formUserType">
-//           <Form.Label></Form.Label>
-//           <Form.Select
-//             name="userType"
-//             value={formData.userType}
-//             onChange={handleChange}
-//           >
-//             {/* <option value={2}>Usuario Normal</option> */}
-//             <option value={1}>Administrador</option>
-//           </Form.Select>
-//         </Form.Group>
-
-//         <Button variant="primary" type="submit" className="mt-3">
-//           Registrarse
-//         </Button>
-//       </Form>
-//     </Container>
-//   );
-// };
-
-// export default Register;
-
-
-
-
-// import React, { useState } from "react";
-// import { Form, Button, Container } from "react-bootstrap";
-// import { useNavigate } from "react-router-dom";
-
-// const Register = () => {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [userType, setUserType] = useState(2); // 1 para admin, 2 para usuario normal
-//   const navigate = useNavigate();
-
-//   const handleRegister = async (e) => {
-//     e.preventDefault();
-
-//     const response = await fetch("http://localhost:5000/api/register", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ email, password, userType }),
-//     });
-
-//     if (response.ok) {
-//       alert("Usuario registrado correctamente");
-//       navigate("/"); // Redirige al login
-//     } else {
-//       alert("Error al registrar usuario");
-//     }
-//   };
-
-//   return (
-//     <Container className="mt-4">
-//       <h2>Registro</h2>
-//       <Form onSubmit={handleRegister}>
-//         <Form.Group controlId="formEmail">
-//           <Form.Label>Email</Form.Label>
-//           <Form.Control
-//             type="email"
-//             placeholder="Ingrese su email"
-//             value={email}
-//             onChange={(e) => setEmail(e.target.value)}
-//             required
-//           />
-//         </Form.Group>
-
-//         <Form.Group controlId="formPassword">
-//           <Form.Label>Contraseña</Form.Label>
-//           <Form.Control
-//             type="password"
-//             placeholder="Ingrese su contraseña"
-//             value={password}
-//             onChange={(e) => setPassword(e.target.value)}
-//             required
-//           />
-//         </Form.Group>
-
-//         <Form.Group controlId="formUserType">
-//           <Form.Label>Tipo de Usuario</Form.Label>
-//           <Form.Select value={userType} onChange={(e) => setUserType(Number(e.target.value))}>
-//             <option value={2}>Usuario Normal</option>
-//             <option value={1}>Administrador</option>
-//           </Form.Select>
-//         </Form.Group>
-
-//         <Button variant="primary" type="submit" className="mt-3">
-//           Registrarse
-//         </Button>
-//       </Form>
-//     </Container>
-//   );
-// };
-
-// export default Register;
